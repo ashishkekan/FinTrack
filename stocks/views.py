@@ -1,3 +1,4 @@
+import json
 from decimal import Decimal
 
 from django.contrib import messages
@@ -12,7 +13,112 @@ from stocks.models import StockTransaction
 
 @login_required
 def home(request):
-    return render(request, "home.html")
+    portfolio = {}
+    total_value = Decimal("0.00")
+    recent_transactions = []
+    top_performer = None
+    worst_performer = None
+    transactions_json = []
+
+    if request.user.is_authenticated:
+        # Fetch transactions
+        transactions = StockTransaction.objects.filter(user=request.user).order_by(
+            "transaction_date"
+        )
+        recent_transactions = transactions.order_by("-transaction_date")[:5].annotate(
+            total_cost=F("quantity") * F("price_per_share")
+        )
+
+        # Prepare transactions for Chart.js
+        transactions_json = [
+            {
+                "stock_symbol": trans.stock_symbol,
+                "price_per_share": float(trans.price_per_share),
+                "transaction_date": trans.transaction_date.isoformat(),
+            }
+            for trans in transactions
+        ]
+
+        # Calculate portfolio
+        for trans in transactions:
+            symbol = trans.stock_symbol
+            if symbol not in portfolio:
+                portfolio[symbol] = {
+                    "quantity": 0,
+                    "total_cost": Decimal("0.00"),
+                    "latest_price": trans.price_per_share,
+                }
+
+            if trans.transaction_type == "BUY":
+                portfolio[symbol]["quantity"] += trans.quantity
+                portfolio[symbol]["total_cost"] += (
+                    trans.quantity * trans.price_per_share
+                )
+            else:  # SELL
+                portfolio[symbol]["quantity"] -= trans.quantity
+                portfolio[symbol]["total_cost"] -= (
+                    trans.quantity * trans.price_per_share
+                )
+            portfolio[symbol]["latest_price"] = trans.price_per_share
+
+        # Calculate average prices and performance
+        for symbol, data in list(portfolio.items()):
+            if data["quantity"] > 0:
+                data["avg_price"] = data["total_cost"] / data["quantity"]
+                total_value += data["quantity"] * data["latest_price"]
+                # Calculate percentage gain/loss
+                if data["avg_price"] > 0:
+                    data["percent_change"] = (
+                        (data["latest_price"] - data["avg_price"]) / data["avg_price"]
+                    ) * 100
+                else:
+                    data["percent_change"] = Decimal("0.00")
+            else:
+                del portfolio[symbol]
+
+        # Identify top and worst performers
+        if portfolio:
+            top_performer = max(
+                portfolio.items(), key=lambda x: x[1]["percent_change"], default=None
+            )
+            worst_performer = min(
+                portfolio.items(), key=lambda x: x[1]["percent_change"], default=None
+            )
+            if top_performer:
+                top_performer = {
+                    "symbol": top_performer[0],
+                    "gain_percent": (
+                        top_performer[1]["percent_change"]
+                        if top_performer[1]["percent_change"] > 0
+                        else None
+                    ),
+                    "avg_price": top_performer[1]["avg_price"],
+                    "current_price": top_performer[1]["latest_price"],
+                }
+            if worst_performer:
+                worst_performer = {
+                    "symbol": worst_performer[0],
+                    "loss_percent": (
+                        abs(worst_performer[1]["percent_change"])
+                        if worst_performer[1]["percent_change"] < 0
+                        else None
+                    ),
+                    "avg_price": worst_performer[1]["avg_price"],
+                    "current_price": worst_performer[1]["latest_price"],
+                }
+
+    return render(
+        request,
+        "home.html",
+        {
+            "portfolio": portfolio,
+            "total_value": total_value,
+            "recent_transactions": recent_transactions,
+            "top_performer": top_performer,
+            "worst_performer": worst_performer,
+            "transactions_json": json.dumps(transactions_json),
+        },
+    )
 
 
 @login_required
@@ -109,7 +215,7 @@ def user_login(request):
 def user_logout(request):
     logout(request)
     messages.success(request, "Logged out successfully.")
-    return redirect("home")
+    return redirect("login")
 
 
 def signup(request):
