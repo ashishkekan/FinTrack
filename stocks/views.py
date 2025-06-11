@@ -9,7 +9,12 @@ from django.core.paginator import Paginator
 from django.db.models import F
 from django.shortcuts import redirect, render
 
-from stocks.forms import LoginForm, SignUpForm
+from stocks.forms import (
+    AdminStockTransactionForm,
+    LoginForm,
+    SignUpForm,
+    StockTransactionForm,
+)
 from stocks.models import StockTransaction
 
 
@@ -164,46 +169,37 @@ def portfolio(request):
 
 @login_required
 def add_transaction(request):
+    form_class = (
+        AdminStockTransactionForm if request.user.is_staff else StockTransactionForm
+    )
+    form = form_class(request.POST or None)
+
     if request.method == "POST":
-        stock_symbol = request.POST.get("stock_symbol").upper()
-        transaction_type = request.POST.get("transaction_type")
-        try:
-            quantity = int(request.POST.get("quantity"))
-            price_per_share = Decimal(request.POST.get("price_per_share"))
-        except (ValueError, TypeError):
-            messages.error(request, "Please enter valid quantity and price.")
-            return redirect("add_transaction")
-
-        if quantity <= 0 or price_per_share <= 0:
-            messages.error(request, "Quantity and price must be positive.")
-            return redirect("add_transaction")
-
-        if not request.user.is_staff:
-            StockTransaction.objects.create(
-                user=request.user,
-                stock_symbol=stock_symbol,
-                transaction_type=transaction_type,
-                quantity=quantity,
-                price_per_share=price_per_share,
-            )
-        else:
-            user_id = request.POST.get("user_id")
-            if user_id:
-                user = User.objects.get(id=user_id)
+        if form.is_valid():
+            transaction = form.save(commit=False)
+            if (
+                request.user.is_staff
+                and hasattr(form, "cleaned_data")
+                and form.cleaned_data.get("user_id")
+            ):
+                transaction.user = form.cleaned_data["user_id"]
             else:
-                user = request.user
-            StockTransaction.objects.create(
-                user=user,
-                stock_symbol=stock_symbol,
-                transaction_type=transaction_type,
-                quantity=quantity,
-                price_per_share=price_per_share,
-            )
-        messages.success(request, "Transaction added successfully.")
-        return redirect("portfolio")
+                transaction.user = request.user
 
-    users = User.objects.all() if request.user.is_staff else None
-    return render(request, "transaction_form.html", {"users": users})
+            if transaction.quantity <= 0 or transaction.price_per_share <= Decimal(
+                "0.00"
+            ):
+                messages.error(request, "Quantity and price must be positive.")
+                return redirect("add_transaction")
+
+            transaction.stock_symbol = transaction.stock_symbol.upper()
+            transaction.save()
+            messages.success(request, "Transaction added successfully.")
+            return redirect("portfolio")
+        else:
+            messages.error(request, "Please correct the errors below.")
+
+    return render(request, "transaction_form.html", {"form": form})
 
 
 def user_login(request):
