@@ -9,6 +9,7 @@ from django.core.paginator import Paginator
 from django.db.models import F
 from django.shortcuts import redirect, render
 
+from stocks.forms import LoginForm, SignUpForm
 from stocks.models import StockTransaction
 
 
@@ -209,18 +210,21 @@ def user_login(request):
     if request.user.is_authenticated:
         return redirect("home")
 
-    if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            messages.success(request, "Logged in successfully.")
-            return redirect("home")
-        else:
-            messages.error(request, "Invalid username or password.")
+    form = LoginForm(request.POST or None)
 
-    return render(request, "login.html")
+    if request.method == "POST":
+        if form.is_valid():
+            username = form.cleaned_data["username"]
+            password = form.cleaned_data["password"]
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.success(request, "Logged in successfully.")
+                return redirect("home")
+            else:
+                messages.error(request, "Invalid username or password.")
+
+    return render(request, "login.html", {"form": form})
 
 
 def user_logout(request):
@@ -233,33 +237,30 @@ def signup(request):
     if request.user.is_authenticated:
         return redirect("home")
 
+    form = SignUpForm(request.POST or None)
+
     if request.method == "POST":
-        username = request.POST.get("username")
-        email = request.POST.get("email")
-        password1 = request.POST.get("password1")
-        password2 = request.POST.get("password2")
+        if form.is_valid():
+            username = form.cleaned_data["username"]
+            email = form.cleaned_data["email"]
+            password1 = form.cleaned_data["password1"]
 
-        if password1 != password2:
-            messages.error(request, "Passwords do not match.")
-            return redirect("signup")
+            if User.objects.filter(username=username).exists():
+                messages.error(request, "Username already taken.")
+                return redirect("signup")
 
-        if User.objects.filter(username=username).exists():
-            messages.error(request, "Username already taken.")
-            return redirect("signup")
+            if User.objects.filter(email=email).exists():
+                messages.error(request, "Email already registered.")
+                return redirect("signup")
 
-        if User.objects.filter(email=email).exists():
-            messages.error(request, "Email already registered.")
-            return redirect("signup")
+            user = User.objects.create_user(
+                username=username, email=email, password=password1
+            )
+            login(request, user)
+            messages.success(request, "Account created successfully.")
+            return redirect("home")
 
-        user = User.objects.create_user(
-            username=username, email=email, password=password1
-        )
-        user.save()
-        login(request, user)
-        messages.success(request, "Account created successfully.")
-        return redirect("home")
-
-    return render(request, "signup.html")
+    return render(request, "signup.html", {"form": form})
 
 
 @login_required
