@@ -1,1 +1,29 @@
-stocks/__pycache__
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+*.dist-info/
+*.whl
+*.log
+*.bak
+*.swp
+*.tmp
+*.pid
+*.coverage
+*.DS_Store
+*.idea/
+*.vscode/
+*.env
+*.venv/
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+# PyCharm project files
+.idea/
+# Visual Studio Code settings
+.vscode/
+# Python bytecode files
+*.pyc
+# Distribution / packaging
