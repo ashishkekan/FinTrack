@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator
 from django.db.models import F
 from django.shortcuts import redirect, render
 
@@ -147,7 +148,17 @@ def portfolio(request):
 
     portfolio = {k: v for k, v in portfolio.items() if v["quantity"] > 0}
 
-    return render(request, "portfolio.html", {"portfolio": portfolio})
+    # Convert to list of dicts for pagination
+    portfolio_list = [
+        {"symbol": symbol, **details} for symbol, details in portfolio.items()
+    ]
+
+    # Set up pagination (10 items per page)
+    paginator = Paginator(portfolio_list, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "portfolio.html", {"page_obj": page_obj})
 
 
 @login_required
