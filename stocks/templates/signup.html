@@ -5,7 +5,7 @@
 {% block header_subtitle %}Create an account to start tracking your stocks.{% endblock %}
 
 {% block content %}
-<div class="max-w-md mx-auto bg-white rounded-xl shadow-md card-hover transition-all duration-300 p-6">
+<div class="max-w-xl mx-auto bg-white rounded-xl shadow-md card-hover transition-all duration-300 p-6">
     <form method="post" class="space-y-4">
         {% csrf_token %}
         {{ form.as_p }}
