@@ -1,0 +1,16 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+input, select {
+    transition: border-color 0.3s;
+}
+
+input:focus, select:focus {
+    border-color: #2563eb;
+    outline: none;
+}
+
+button {
+    transition: background-color 0.3s;
+}
