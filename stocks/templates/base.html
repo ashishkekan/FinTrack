@@ -97,19 +97,19 @@
     <!-- Main Content -->
     <div class="md:ml-64 min-h-screen">
         <!-- Header -->
-        <header class="gradient-bg text-white p-6">
-            <div class="flex justify-between items-center">
+        <header class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-4 shadow-md">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 class="text-2xl font-bold">{% block header_title %}Dashboard{% endblock %}</h2>
-                    <p class="text-indigo-100">{% block header_subtitle %}Welcome back! Here's your financial overview.{% endblock %}</p>
+                    <h2 class="text-2xl font-bold leading-tight">{% block header_title %}Dashboard{% endblock %}</h2>
+                    <p class="text-indigo-100 text-sm">{% block header_subtitle %}Welcome back! Here's your financial overview.{% endblock %}</p>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <button class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg flex items-center">
-                        <i class="fas fa-bell mr-2"></i>
+                <div class="flex items-center gap-3">
+                    <button class="flex items-center gap-2 px-3 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition text-sm">
+                        <i class="fas fa-bell"></i>
                         <span class="hidden md:inline">Notifications</span>
                     </button>
-                    <button class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg flex items-center">
-                        <i class="fas fa-search mr-2"></i>
+                    <button class="flex items-center gap-2 px-3 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition text-sm">
+                        <i class="fas fa-search"></i>
                         <span class="hidden md:inline">Search</span>
                     </button>
                 </div>
