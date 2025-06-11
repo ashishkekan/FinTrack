@@ -1,70 +1,105 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Mobile Menu Toggle
-    const menuBtn = document.getElementById('menuBtn');
-    const sidebar = document.getElementById('sidebar');
+    const portfolioChartCanvas = document.getElementById('stockChart');
+    const graphFilter = document.getElementById('graphFilter');
     
-    if (menuBtn && sidebar) {
-        menuBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('active');
-        });
-    }
+    if (portfolioChartCanvas && graphFilter) {
+        console.log('Chart canvas and filter found');
+        const ctx = portfolioChartCanvas.getContext('2d');
+        let chart;
 
-    // Form Validation for Transaction Form
-    const transactionForm = document.querySelector('form');
-    if (transactionForm) {
-        transactionForm.addEventListener('submit', function (e) {
-            const quantityInputs = document.querySelectorAll('input[name="quantity[]"], input[name="quantity"]');
-            const priceInputs = document.querySelectorAll('input[name="price[]"], input[name="price_per_share"]');
-            for (let i = 0; i < quantityInputs.length; i++) {
-                const qty = quantityInputs[i].value;
-                const price = priceInputs[i].value;
-                if (qty <= 0 || price <= 0) {
-                    e.preventDefault();
-                    alert('Quantity and price must be positive numbers.');
-                    return;
-                }
-            }
-        });
-    }
+        // Transaction data from window.transactionsData
+        const transactions = window.transactionsData || [];
+        console.log('Transactions data:', transactions);
 
-    // Dynamic Transaction Rows for Average Price Calculator
-    const addRowBtn = document.getElementById('addRow');
-    const transactionsContainer = document.getElementById('transactionsContainer');
-    
-    if (addRowBtn && transactionsContainer) {
-        addRowBtn.addEventListener('click', () => {
-            const newRow = document.createElement('div');
-            newRow.className = 'transaction-row flex space-x-4 items-end';
-            newRow.innerHTML = `
-                <div class="flex-1">
-                    <label class="block text-gray-700 font-medium mb-1">Quantity</label>
-                    <input type="number" name="quantity[]" class="w-full p-3 border rounded-lg focus:border-indigo-600 focus:outline-none" required>
-                </div>
-                <div class="flex-1">
-                    <label class="block text-gray-700 font-medium mb-1">Price per Share (₹)</label>
-                    <input type="number" step="0.01" name="price[]" class="w-full p-3 border rounded-lg focus:border-indigo-600 focus:outline-none" required>
-                </div>
-                <button type="button" class="remove-row bg-red-600 text-white p-3 rounded-lg hover:bg-red-700 transition-colors">
-                    <i class="fas fa-trash"></i>
-                </button>
-            `;
-            transactionsContainer.appendChild(newRow);
-            updateRemoveButtons();
-        });
-
-        function updateRemoveButtons() {
-            const removeButtons = document.querySelectorAll('.remove-row');
-            removeButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    if (transactionsContainer.querySelectorAll('.transaction-row').length > 1) {
-                        button.parentElement.remove();
-                    } else {
-                        alert('At least one transaction row is required.');
-                    }
-                });
-            });
+        if (!transactions.length) {
+            console.warn('No transaction data available');
+            portfolioChartCanvas.parentElement.innerHTML += '<p class="text-center text-gray-600 mt-4">No transaction data to display.</p>';
+            return;
         }
 
-        updateRemoveButtons();
+        const colors = ['#10B981', '#EF4444', '#3B82F6', '#F59E0B', '#8B5CF6'];
+
+        function updateChart(symbol) {
+            console.log('Updating chart for symbol:', symbol);
+            const filteredData = symbol === 'all' 
+                ? transactions 
+                : transactions.filter(t => t.stock_symbol === symbol);
+
+            console.log('Filtered data:', filteredData);
+
+            if (!filteredData.length) {
+                console.warn('No data for selected symbol:', symbol);
+                if (chart) chart.destroy();
+                ctx.canvas.parentElement.innerHTML += '<p class="text-center text-gray-600 mt-4">No data for selected symbol.</p>';
+                return;
+            }
+
+            const datasets = {};
+            filteredData.forEach(t => {
+                if (!datasets[t.stock_symbol]) {
+                    datasets[t.stock_symbol] = {
+                        label: t.stock_symbol,
+                        data: [],
+                        borderColor: colors[Object.keys(datasets).length % colors.length],
+                        backgroundColor: colors[Object.keys(datasets).length % colors.length] + '33',
+                        tension: 0.3,
+                        fill: true
+                    };
+                }
+                datasets[t.stock_symbol].data.push({
+                    x: t.transaction_date,
+                    y: t.price_per_share
+                });
+            });
+
+            console.log('Datasets:', datasets);
+
+            if (chart) chart.destroy();
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: Object.values(datasets)
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                tooltipFormat: 'MMM D, YYYY'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        },
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Price per Share (₹)'
+                            }
+                        }
+                    }
+                }
+            });
+            console.log('Chart rendered');
+        }
+
+        graphFilter.addEventListener('change', () => {
+            updateChart(graphFilter.value);
+        });
+
+        // Initialize chart with all stocks
+        updateChart('all');
+    } else {
+        console.error('Chart canvas or filter not found');
     }
 });
