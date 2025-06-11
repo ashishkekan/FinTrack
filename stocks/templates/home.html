@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load custom_filter %}
 {% block title %}Dashboard{% endblock %}
 {% block header_title %}Dashboard{% endblock %}
 {% block header_subtitle %}Welcome back! Here's your financial overview.{% endblock %}
@@ -56,8 +56,8 @@
                         <p class="text-sm text-gray-500">{{ trans.transaction_date|date:"M d, Y" }}</p>
                     </div>
                     <div class="text-right">
-                        <p class="font-medium {% if trans.transaction_type == 'BUY' %}text-green-500{% else %}text-red-500{% endif %}">{{ trans.quantity }} @ ₹{{ trans.price_per_share|floatformat:2 }}</p>
-                        <p class="text-xs text-gray-500">Total: ₹{{ trans.total_cost|floatformat:2 }}</p>
+                        <p class="font-medium {% if trans.transaction_type == 'BUY' %}text-green-500{% else %}text-red-500{% endif %}">{{ trans.quantity }} @ {{ trans.price_per_share|format_indian_currency }}</p>
+                        <p class="text-xs text-gray-500">Total: {{ trans.total_cost|format_indian_currency }}</p>
                     </div>
                 </div>
                 {% endfor %}
@@ -106,7 +106,7 @@
             <div class="flex justify-between items-start">
                 <div>
                     <p class="text-gray-500">Total Portfolio Value</p>
-                    <h3 class="text-2xl font-bold mt-1">₹{{ total_value|floatformat:2 }}</h3>
+                    <h3 class="text-2xl font-bold mt-1">{{ total_value|format_big_number }}</h3>
                     <p class="text-gray-500 text-sm mt-2">Based on latest transaction prices.</p>
                 </div>
                 <div class="bg-indigo-100 p-3 rounded-lg">
@@ -122,14 +122,14 @@
             <div class="mb-4">
                 <p class="text-gray-500 text-sm">Top Performer</p>
                 <p class="font-medium">{{ top_performer.symbol }}</p>
-                <p class="text-green-500 text-sm">+{{ top_performer.gain_percent|floatformat:2 }}% (₹{{ top_performer.current_price|floatformat:2 }} vs ₹{{ top_performer.avg_price|floatformat:2 }})</p>
+                <p class="text-green-500 text-sm">+{{ top_performer.gain_percent|format_indian_currency }}% ({{ top_performer.current_price|format_indian_currency }} vs {{ top_performer.avg_price|format_indian_currency }})</p>
             </div>
             {% endif %}
             {% if worst_performer %}
             <div>
                 <p class="text-gray-500 text-sm">Worst Performer</p>
                 <p class="font-medium">{{ worst_performer.symbol }}</p>
-                <p class="text-red-500 text-sm">-{{ worst_performer.loss_percent|floatformat:2 }}% (₹{{ worst_performer.current_price|floatformat:2 }} vs ₹{{ worst_performer.avg_price|floatformat:2 }})</p>
+                <p class="text-red-500 text-sm">-{{ worst_performer.loss_percent|format_indian_currency }}% ({{ worst_performer.current_price|format_indian_currency }} vs {{ worst_performer.avg_price|format_indian_currency }})</p>
             </div>
             {% endif %}
             {% else %}
