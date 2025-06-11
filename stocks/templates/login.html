@@ -1,21 +1,28 @@
 {% extends 'base.html' %}
 
+{% block title %}Login{% endblock %}
+{% block header_title %}Login{% endblock %}
+{% block header_subtitle %}Sign in to manage your stock portfolio.{% endblock %}
+
 {% block content %}
-<h1 class="text-2xl font-bold mb-4">Login</h1>
-<form method="post" class="bg-white p-6 rounded shadow">
-    {% csrf_token %}
-    <div class="mb-4">
-        <label class="block text-gray-700">Username</label>
-        <input type="text" name="username" class="w-full p-2 border rounded" required>
-    </div>
-    <div class="mb-4">
-        <label class="block text-gray-700">Password</label>
-        <input type="password" name="password" class="w-full p-2 border rounded" required>
-    </div>
-    {% if form.errors %}
-        <p class="text-red-600 mb-4">Invalid username or password.</p>
-    {% endif %}
-    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Login</button>
-</form>
-<p class="mt-4">Don't have an account? <a href="{% url 'signup' %}" class="text-blue-600 hover:underline">Sign up</a></p>
+<div class="max-w-md mx-auto bg-white rounded-xl shadow-md card-hover transition-all duration-300 p-6">
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        <div>
+            <label class="block text-gray-700 font-medium mb-1">Username</label>
+            <input type="text" name="username" class="w-full p-3 border rounded-lg focus:border-indigo-600 focus:outline-none" required>
+        </div>
+        <div>
+            <label class="block text-gray-700 font-medium mb-1">Password</label>
+            <input type="password" name="password" class="w-full p-3 border rounded-lg focus:border-indigo-600 focus:outline-none" required>
+        </div>
+        {% if form.errors %}
+            <p class="text-red-600 text-sm">Invalid username or password.</p>
+        {% endif %}
+        <button type="submit" class="w-full bg-indigo-600 text-white px-4 py-3 rounded-lg hover:bg-indigo-700 transition-colors">
+            <i class="fas fa-sign-in-alt mr-2"></i> Login
+        </button>
+    </form>
+    <p class="mt-4 text-center text-gray-600">Don't have an account? <a href="{% url 'signup' %}" class="text-indigo-600 hover:underline">Sign up</a></p>
+</div>
 {% endblock %}

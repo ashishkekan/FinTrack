@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db.models import F
 from django.shortcuts import redirect, render
 
 from stocks.models import StockTransaction
@@ -142,3 +143,81 @@ def signup(request):
         return redirect("home")
 
     return render(request, "signup.html")
+
+
+@login_required
+def avg_price_calculator(request):
+    result = None
+    existing_shares = None
+    existing_total_shares = 0
+    existing_total_cost = Decimal("0.00")
+    stock_symbol = ""
+
+    if request.method == "POST":
+        stock_symbol = request.POST.get("stock_symbol").upper()
+        quantities = request.POST.getlist("quantity[]")
+        prices = request.POST.getlist("price[]")
+
+        # Fetch existing buy transactions for the stock symbol
+        buy_transactions = (
+            StockTransaction.objects.filter(
+                user=request.user, stock_symbol=stock_symbol, transaction_type="BUY"
+            )
+            .values("quantity", "price_per_share")
+            .annotate(total_cost=F("quantity") * F("price_per_share"))
+        )
+
+        existing_shares = [
+            {
+                "quantity": trans["quantity"],
+                "price_per_share": trans["price_per_share"],
+                "total_cost": trans["total_cost"],
+            }
+            for trans in buy_transactions
+        ]
+
+        for trans in buy_transactions:
+            existing_total_shares += trans["quantity"]
+            existing_total_cost += trans["total_cost"]
+
+        try:
+            total_shares = existing_total_shares
+            total_cost = existing_total_cost
+
+            # Process new transactions
+            for qty, price in zip(quantities, prices):
+                qty = int(qty)
+                price = Decimal(price)
+                if qty <= 0 or price <= 0:
+                    messages.error(request, "Quantity and price must be positive.")
+                    return redirect("avg_price_calculator")
+                total_shares += qty
+                total_cost += qty * price
+
+            if total_shares > 0:
+                avg_price = total_cost / total_shares
+                result = {
+                    "stock_symbol": stock_symbol,
+                    "total_shares": total_shares,
+                    "total_cost": total_cost,
+                    "avg_price": avg_price,
+                }
+            else:
+                messages.error(
+                    request,
+                    "At least one valid transaction or existing share is required.",
+                )
+        except (ValueError, TypeError):
+            messages.error(request, "Please enter valid quantities and prices.")
+
+    return render(
+        request,
+        "avg_price_calculator.html",
+        {
+            "result": result,
+            "existing_shares": existing_shares,
+            "existing_total_shares": existing_total_shares,
+            "existing_total_cost": existing_total_cost,
+            "stock_symbol": stock_symbol,
+        },
+    )
