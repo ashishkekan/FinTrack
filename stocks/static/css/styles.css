@@ -11,10 +11,6 @@ body {
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
-.sidebar {
-    transition: all 0.3s ease;
-}
-
 input, select {
     transition: border-color 0.3s;
 }
@@ -32,11 +28,26 @@ button:hover {
     transform: translateY(-2px);
 }
 
+/* Navbar Styles */
+nav {
+    transition: all 0.3s ease;
+}
+
+#navbarMenu {
+    transition: all 0.3s ease;
+}
+
+#mobileMenu.active {
+    display: block;
+}
+
+/* Dropdown Styles */
+.group:hover .group-hover\:block {
+    display: block;
+}
+
 @media (max-width: 768px) {
-    .sidebar {
-        transform: translateX(-100%);
-    }
-    .sidebar.active {
-        transform: translateX(0);
+    #navbarMenu {
+        display: none;
     }
 }
