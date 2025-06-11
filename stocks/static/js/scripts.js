@@ -103,3 +103,15 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error('Chart canvas or filter not found');
     }
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Mobile Menu Toggle
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    
+    if (menuBtn && sidebar) {
+        menuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+    }
+});
