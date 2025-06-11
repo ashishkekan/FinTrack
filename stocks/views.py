@@ -1,4 +1,5 @@
 import json
+from collections import defaultdict
 from decimal import Decimal
 
 from django.contrib import messages
@@ -7,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.db.models import F, Q
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 
 from stocks.forms import (
     AdminStockTransactionForm,
@@ -131,20 +132,32 @@ def home(request):
 @login_required
 def portfolio(request):
     transactions = StockTransaction.objects.filter(user=request.user)
-    portfolio = {}
+    portfolio = defaultdict(
+        lambda: {
+            "quantity": 0,
+            "total_cost": Decimal("0.00"),
+            "latest_transaction": None,
+        }
+    )
 
     for trans in transactions:
-        symbol = trans.stock_symbol
-        if symbol not in portfolio:
-            portfolio[symbol] = {"quantity": 0, "total_cost": Decimal("0.00")}
+        data = portfolio[trans.stock_symbol]
 
         if trans.transaction_type == "BUY":
-            portfolio[symbol]["quantity"] += trans.quantity
-            portfolio[symbol]["total_cost"] += trans.quantity * trans.price_per_share
+            data["quantity"] += trans.quantity
+            data["total_cost"] += trans.quantity * trans.price_per_share
         else:  # SELL
-            portfolio[symbol]["quantity"] -= trans.quantity
-            portfolio[symbol]["total_cost"] -= trans.quantity * trans.price_per_share
+            data["quantity"] -= trans.quantity
+            data["total_cost"] -= trans.quantity * trans.price_per_share
 
+        # Track the latest transaction ID
+        if (
+            data["latest_transaction"] is None
+            or trans.transaction_date > data["latest_transaction"].transaction_date
+        ):
+            data["latest_transaction"] = trans
+
+    # Finalize the data
     for symbol, data in portfolio.items():
         if data["quantity"] > 0:
             data["avg_price"] = data["total_cost"] / data["quantity"]
@@ -152,14 +165,23 @@ def portfolio(request):
             data["avg_price"] = Decimal("0.00")
             data["quantity"] = 0
 
-    portfolio = {k: v for k, v in portfolio.items() if v["quantity"] > 0}
+    # Filter only stocks with quantity > 0
+    portfolio = {
+        symbol: {
+            "symbol": symbol,
+            "quantity": data["quantity"],
+            "avg_price": data["avg_price"],
+            "latest_pk": (
+                data["latest_transaction"].pk if data["latest_transaction"] else None
+            ),
+        }
+        for symbol, data in portfolio.items()
+        if data["quantity"] > 0
+    }
 
-    # Convert to list of dicts for pagination
-    portfolio_list = [
-        {"symbol": symbol, **details} for symbol, details in portfolio.items()
-    ]
+    # Convert to list for pagination
+    portfolio_list = list(portfolio.values())
 
-    # Set up pagination (10 items per page)
     paginator = Paginator(portfolio_list, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -200,6 +222,31 @@ def add_transaction(request):
             messages.error(request, "Please correct the errors below.")
 
     return render(request, "transaction_form.html", {"form": form})
+
+
+@login_required
+def edit_transaction(request, pk):
+    transaction = get_object_or_404(StockTransaction, pk=pk)
+    if request.method == "POST":
+        form = StockTransactionForm(request.POST, instance=transaction)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Transaction updated successfully.")
+            return redirect("search_transactions")
+    else:
+        form = StockTransactionForm(instance=transaction)
+
+    return render(
+        request, "edit_transactions.html", {"form": form, "transaction": transaction}
+    )
+
+
+@login_required
+def delete_transaction(request, pk):
+    transaction = get_object_or_404(StockTransaction, pk=pk)
+    transaction.delete()
+    messages.success(request, "Transaction deleted successfully.")
+    return redirect("portfolio")
 
 
 def user_login(request):

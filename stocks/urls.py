@@ -11,4 +11,10 @@ urlpatterns = [
     path("signup/", views.signup, name="signup"),
     path("calculator/", views.avg_price_calculator, name="avg_price_calculator"),
     path("search/", views.search_transactions, name="search_transactions"),
+    path("transaction/<int:pk>/edit/", views.edit_transaction, name="edit_transaction"),
+    path(
+        "transaction/<int:pk>/delete/",
+        views.delete_transaction,
+        name="delete_transaction",
+    ),
 ]

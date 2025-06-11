@@ -17,6 +17,9 @@
                     <p><strong>Qty:</strong> {{ trans.quantity }}</p>
                     <p><strong>Price/Share:</strong> ₹{{ trans.price_per_share }}</p>
                     <p><strong>Date:</strong> {{ trans.transaction_date|date:"M d, Y H:i" }}</p>
+                    <a href="{% url 'edit_transaction' trans.id %}" class="inline-block mt-3 text-sm text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg">
+                        View Transaction
+                    </a>
                 </div>
             {% endfor %}
         </div>
