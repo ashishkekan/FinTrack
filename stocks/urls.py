@@ -10,4 +10,5 @@ urlpatterns = [
     path("logout/", views.user_logout, name="logout"),
     path("signup/", views.signup, name="signup"),
     path("calculator/", views.avg_price_calculator, name="avg_price_calculator"),
+    path("search/", views.search_transactions, name="search_transactions"),
 ]

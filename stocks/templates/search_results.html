@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results{% endblock %}
+{% block header_title %}Search Results{% endblock %}
+{% block header_subtitle %}Results for "{{ query }}"{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow-md rounded-lg p-6">
+    {% if transactions %}
+        <h2 class="text-xl font-bold mb-4">Found {{ transactions|length }} result{{ transactions|length|pluralize }}</h2>
+        <div class="space-y-4">
+            {% for trans in transactions %}
+                <div class="p-4 border rounded-md hover:bg-gray-50 transition">
+                    <p><strong>User:</strong> {{ trans.user.username }}</p>
+                    <p><strong>Stock:</strong> {{ trans.stock_symbol }}</p>
+                    <p><strong>Type:</strong> {{ trans.transaction_type }}</p>
+                    <p><strong>Qty:</strong> {{ trans.quantity }}</p>
+                    <p><strong>Price/Share:</strong> ₹{{ trans.price_per_share }}</p>
+                    <p><strong>Date:</strong> {{ trans.transaction_date|date:"M d, Y H:i" }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-gray-600">No results found for "<strong>{{ query }}</strong>".</p>
+    {% endif %}
+</div>
+{% endblock %}

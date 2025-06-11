@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
-from django.db.models import F
+from django.db.models import F, Q
 from django.shortcuts import redirect, render
 
 from stocks.forms import (
@@ -335,3 +335,25 @@ def avg_price_calculator(request):
             "stock_symbol": stock_symbol,
         },
     )
+
+
+@login_required
+def search_transactions(request):
+    query = request.GET.get("q", "").strip()
+    transactions = []
+
+    if query:
+        transactions = StockTransaction.objects.filter(
+            Q(user__username__icontains=query)
+            | Q(stock_symbol__icontains=query)
+            | Q(transaction_type__icontains=query)
+            | Q(quantity__icontains=query)
+            | Q(price_per_share__icontains=query)
+            | Q(transaction_date__icontains=query)
+        ).order_by("-transaction_date")
+
+    context = {
+        "transactions": transactions,
+        "query": query,
+    }
+    return render(request, "search_results.html", context)
