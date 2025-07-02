@@ -9,14 +9,17 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
+# Detect current branch
+branch=$(git rev-parse --abbrev-ref HEAD)
+
 # Git operations
 echo "🔍 Adding changes..."
 git add .
 
-echo "📝 Committing..."
+echo "📝 Committing to branch '$branch'..."
 git commit -m "$1"
 
-echo "🚀 Pushing to master..."
-git push origin main
+echo "🚀 Pushing to $branch..."
+git push origin "$branch"
 
-echo "✅ Done!"
+echo "✅ Done on branch '$branch'!"
