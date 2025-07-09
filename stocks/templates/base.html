@@ -16,41 +16,59 @@
         <i class="fas fa-bars text-indigo-600"></i>
     </button>
 
-    <!-- Sidebar -->
-    <div id="sidebar" class="sidebar fixed h-screen w-64 bg-white shadow-lg z-40 md:block">
-        <div class="p-6">
-            <div class="flex items-center mb-10">
+    <!-- Navbar -->
+    <nav id="navbar" class="navbar fixed top-0 left-0 w-full bg-white shadow-lg z-40">
+        <div class="flex items-center justify-between p-4">
+            <!-- Logo and Brand -->
+            <div class="flex items-center">
                 <i class="fas fa-wallet text-indigo-600 text-3xl mr-3"></i>
                 <h1 class="text-2xl font-bold text-indigo-800">FinTrack</h1>
             </div>
-            <nav>
-                <ul class="space-y-3">
-                    {% for link in request.sidebar_nav_links %}
-                    <li>
-                        <a href="{{ link.url }}" class="flex items-center p-3 rounded-lg {% if link.is_active %}bg-indigo-50 text-indigo-600{% else %}text-gray-600 hover:bg-indigo-50 hover:text-indigo-600{% endif %} {% if link.font_semibold %}font-semibold{% endif %}">
-                            <i class="fas {{ link.icon }} mr-3"></i>
-                            {{ link.name }}
-                        </a>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </nav>
-        </div>
-        {% if request.sidebar_user %}
-        <div class="absolute bottom-0 w-full p-6">
-            <div class="flex items-center">
-                <img src="https://randomuser.me/api/portraits/women/44.jpg" class="w-10 h-10 rounded-full mr-3" alt="User">
-                <div>
-                    <p class="font-semibold text-gray-800">{{ request.sidebar_user.username }}</p>
-                    <p class="text-xs text-gray-500">{{ request.sidebar_user.is_staff|yesno:"Admin,User" }}
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex items-center space-x-4">
+                {% for link in request.sidebar_nav_links %}
+                <a href="{{ link.url }}" class="flex items-center px-4 py-2 rounded-lg {% if link.is_active %}bg-indigo-50 text-indigo-600{% else %}text-gray-600 hover:bg-indigo-50 hover:text-indigo-600{% endif %} {% if link.font_semibold %}font-semibold{% endif %} transition-colors">
+                    <i class="fas {{ link.icon }} mr-2"></i>
+                    {{ link.name }}
+                </a>
+                {% endfor %}
+                {% if request.sidebar_user %}
+                <div class="flex items-center">
+                    <img src="https://randomuser.me/api/portraits/women/44.jpg" class="w-8 h-8 rounded-full mr-2" alt="User">
+                    <div class="text-sm">
+                        <p class="font-semibold text-gray-800">{{ request.sidebar_user.username }}</p>
+                        <p class="text-xs text-gray-500">{{ request.sidebar_user.is_staff|yesno:"Admin,User" }}</p>
+                    </div>
                 </div>
+                {% endif %}
             </div>
         </div>
-        {% endif %}
-    </div>
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white w-full shadow-md">
+            <ul class="flex flex-col p-4 space-y-3">
+                {% for link in request.sidebar_nav_links %}
+                <li>
+                    <a href="{{ link.url }}" class="flex items-center p-3 rounded-lg {% if link.is_active %}bg-indigo-50 text-indigo-600{% else %}text-gray-600 hover:bg-indigo-50 hover:text-indigo-600{% endif %} {% if link.font_semibold %}font-semibold{% endif %}">
+                        <i class="fas {{ link.icon }} mr-3"></i>
+                        {{ link.name }}
+                    </a>
+                </li>
+                {% endfor %}
+                {% if request.sidebar_user %}
+                <li class="flex items-center p-3">
+                    <img src="https://randomuser.me/api/portraits/women/44.jpg" class="w-10 h-10 rounded-full mr-3" alt="User">
+                    <div>
+                        <p class="font-semibold text-gray-800">{{ request.sidebar_user.username }}</p>
+                        <p class="text-xs text-gray-500">{{ request.sidebar_user.is_staff|yesno:"Admin,User" }}</p>
+                    </div>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
 
     <!-- Main Content -->
-    <div class="md:ml-64 min-h-screen main-content">
+    <div class="mt-16 min-h-screen main-content">
         <!-- Header -->
         <header class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-4 shadow-md">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -78,7 +96,7 @@
         <div class="p-6">
             {% if messages %}
                 {% for message in messages %}
-                    <div class="bg-{% if message.tags == 'error' %}red{% else %} green{% endif %}-100 border border-{% if message.tags == 'error' %}red{% else %}green{% endif %}-400 text-{% if message.tags == 'error' %}red{% else %}green{% endif %}-700 px-4 py-3 rounded mb-4">
+                    <div class="bg-{% if message.tags == 'error' %}red{% else %}green{% endif %}-100 border border-{% if message.tags == 'error' %}red{% else %}green{% endif %}-400 text-{% if message.tags == 'error' %}red{% else %}green{% endif %}-700 px-4 py-3 rounded mb-4">
                         {{ message }}
                     </div>
                 {% endfor %}
@@ -89,7 +107,13 @@
     </div>
 
     <script src="{% static 'js/scripts.js' %}"></script>
-    </div>
-</div>
+    <script>
+        const menuBtn = document.getElementById('menuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        menuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            mobileMenu.classList.toggle('active');
+        });
+    </script>
 </body>
 </html>
