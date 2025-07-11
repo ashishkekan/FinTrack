@@ -11,20 +11,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-50 font-sans">
-    <!-- Mobile Menu Button -->
     <button id="menuBtn" class="md:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded-lg shadow-lg">
         <i class="fas fa-bars text-indigo-600"></i>
     </button>
 
-    <!-- Navbar -->
     <nav id="navbar" class="navbar fixed top-0 left-0 w-full bg-white shadow-lg z-40">
         <div class="flex items-center justify-between p-4">
-            <!-- Logo and Brand -->
             <div class="flex items-center">
-                <i class="fas fa-wallet text-indigo-600 text-3xl mr-3"></i>
-                <h1 class="text-2xl font-bold text-indigo-800">FinTrack</h1>
+                <img src="https://mui.com/static/logo.png" alt="Material UI Logo" class="h-10 mr-3">
+                <h1 class="text-2xl font-bold" style="color: #007FFF;">FinTrack</h1>
             </div>
-            <!-- Desktop Menu -->
             <div class="hidden md:flex items-center space-x-4">
                 {% for link in request.sidebar_nav_links %}
                 <a href="{{ link.url }}" class="flex items-center px-4 py-2 rounded-lg {% if link.is_active %}bg-indigo-50 text-indigo-600{% else %}text-gray-600 hover:bg-indigo-50 hover:text-indigo-600{% endif %} {% if link.font_semibold %}font-semibold{% endif %} transition-colors">
@@ -41,7 +37,6 @@
                 {% endif %}
             </div>
         </div>
-        <!-- Mobile Menu -->
         <div id="mobileMenu" class="hidden md:hidden bg-white w-full shadow-md">
             <ul class="flex flex-col p-4 space-y-3">
                 {% for link in request.sidebar_nav_links %}
@@ -63,9 +58,7 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
     <div class="mt-16 min-h-screen main-content">
-        <!-- Header -->
         <header class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-4 shadow-md">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
@@ -88,7 +81,6 @@
             </div>
         </header>
 
-        <!-- Content -->
         <div class="p-6">
             {% if messages %}
                 {% for message in messages %}
