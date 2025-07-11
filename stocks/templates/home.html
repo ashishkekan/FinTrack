@@ -8,38 +8,10 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <div class="lg:col-span-2 space-y-6">
         {% if user.is_authenticated %}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-white rounded-xl shadow-md card-hover transition-all duration-300 p-6">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-gray-500">Portfolio</p>
-                        <h3 class="text-xl font-bold mt-1">View Your Stocks</h3>
-                        <p class="text-gray-500 text-sm mt-2">Check your stock holdings and average prices.</p>
-                    </div>
-                    <div class="bg-indigo-100 p-3 rounded-lg">
-                        <i class="fas fa-chart-line text-indigo-600 text-xl"></i>
-                    </div>
-                </div>
-                <a href="{% url 'portfolio' %}" class="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">View Portfolio</a>
-            </div>
-            <div class="bg-white rounded-xl shadow-md card-hover transition-all duration-300 p-6">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-gray-500">Transactions</p>
-                        <h3 class="text-xl font-bold mt-1">Add New Transaction</h3>
-                        <p class="text-gray-500 text-sm mt-2">Record a buy or sell transaction.</p>
-                    </div>
-                    <div class="bg-green-100 p-3 rounded-lg">
-                        <i class="fas fa-exchange-alt text-green-600 text-xl"></i>
-                    </div>
-                </div>
-                <a href="{% url 'add_transaction' %}" class="mt-4 inline-block bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">Add Transaction</a>
-            </div>
-        </div>
         <div class="bg-white rounded-xl shadow-md card-hover transition-all duration-300 p-6">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="font-bold text-lg">Recent Transactions</h3>
-                <a href="{% url 'add_transaction' %}" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">Add New</a>
+                <a href="{% url 'add-transaction' %}" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">Add New</a>
             </div>
             {% if recent_transactions %}
             <div class="space-y-4">
@@ -122,7 +94,7 @@
                 <div>
                     <p class="text-gray-500 text-sm">Worst Performer</p>
                     <p class="font-medium">{{ worst_performer.symbol }}</p>
-                    <p class="text-red-500 text-sm">-{{ worst_performer.loss_percent|format_indian_currency }}% ({{ worst_performer.current_price|format_indian_currency }} vs {{ worst_performer.avg_price|format_indian_currency }})</p>
+                    <p class="text-red-500 text-sm">-{{ worst_performer.loss_percent|format_indian_currency }}% ({{ top_performer.current_price|format_indian_currency }} vs {{ top_performer.avg_price|format_indian_currency }})</p>
                 </div>
                 {% endif %}
             {% else %}
@@ -132,8 +104,4 @@
     </div>
     {% endif %}
 </div>
-
-<footer class="mt-10 py-6 border-t text-center text-sm text-gray-500">
-    Copyright &copy; {% now "Y" %} StockTracker. All rights reserved.
-</footer>
 {% endblock %}

@@ -9,9 +9,15 @@
     <form method="post" class="space-y-4">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit" class="w-full bg-indigo-600 text-white px-4 py-3 rounded-lg hover:bg-indigo-700 transition-colors">
-            <i class="fas fa-exchange-alt mr-2"></i> Submit
-        </button>
+
+        <div class="flex justify-between items-center mt-6">
+            <a href="{% url 'transactions-list' %}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-3 rounded-lg transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i> Back
+            </a>
+            <button type="submit" class="bg-indigo-600 text-white px-4 py-3 rounded-lg hover:bg-indigo-700 transition-colors">
+                <i class="fas fa-exchange-alt mr-2"></i> Submit
+            </button>
+        </div>
     </form>
 </div>
 {% endblock %}

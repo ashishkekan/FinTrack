@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
-from django.db.models import F, Q
+from django.db.models import Case, DecimalField, F, IntegerField, Max, Q, Sum, When
 from django.shortcuts import get_object_or_404, redirect, render
 
 from stocks.forms import (
@@ -17,6 +17,78 @@ from stocks.forms import (
     StockTransactionForm,
 )
 from stocks.models import StockTransaction
+
+
+@login_required
+def portfolio(request):
+    transactions = StockTransaction.objects.filter(user=request.user).select_related('user').order_by('transaction_date')
+
+    portfolio_data = transactions.values('stock_symbol').annotate(
+        total_quantity=Sum(
+            Case(
+                When(transaction_type='BUY', then=F('quantity')),
+                When(transaction_type='SELL', then=-F('quantity')),
+                output_field=IntegerField(),
+                default=0
+            )
+        ),
+        total_cost=Sum(
+            Case(
+                When(transaction_type='BUY', then=F('quantity') * F('price_per_share')),
+                When(transaction_type='SELL', then=-F('quantity') * F('price_per_share')),
+                output_field=DecimalField(),
+                default=Decimal("0.00")
+            )
+        ),
+        latest_price=Max('price_per_share'),
+        latest_date=Max('transaction_date'),
+        latest_pk=Max('id')
+    ).filter(total_quantity__gt=0)
+
+    portfolio = []
+    total_value = Decimal("0.00")
+    for data in portfolio_data:
+        avg_price = data['total_cost'] / data['total_quantity'] if data['total_quantity'] > 0 else Decimal("0.00")
+        percent_change = (
+            ((data['latest_price'] - avg_price) / avg_price * 100)
+            if avg_price > 0 else Decimal("0.00")
+        )
+        portfolio.append({
+            "symbol": data['stock_symbol'],
+            "quantity": data['total_quantity'],
+            "avg_price": avg_price,
+            "latest_price": data['latest_price'],
+            "total_value": data['total_quantity'] * data['latest_price'],
+            "percent_change": percent_change,
+            "latest_pk": data['latest_pk'],
+        })
+        total_value += data['total_quantity'] * data['latest_price']
+
+    top_10_stocks = sorted(portfolio, key=lambda x: x['percent_change'], reverse=True)[:10]
+    top_10_symbols = [stock['symbol'] for stock in top_10_stocks]
+
+    transactions_json = [
+        {
+            "stock_symbol": trans.stock_symbol,
+            "price_per_share": float(trans.price_per_share),
+            "transaction_date": trans.transaction_date.strftime('%Y-%m-%d'),
+        }
+        for trans in transactions if not top_10_symbols or trans.stock_symbol in top_10_symbols
+    ]
+    paginator = Paginator(portfolio, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    return render(
+        request,
+        "portfolio.html",
+        {
+            "page_obj": page_obj,
+            "total_value": total_value,
+            "top_10_stocks": top_10_stocks,
+            "transactions_json": json.dumps(transactions_json),
+        }
+    )
 
 
 @login_required
@@ -130,7 +202,7 @@ def home(request):
 
 
 @login_required
-def portfolio(request):
+def transactions_list(request):
     transactions = StockTransaction.objects.filter(user=request.user)
     portfolio = defaultdict(
         lambda: {
@@ -186,7 +258,7 @@ def portfolio(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    return render(request, "portfolio.html", {"page_obj": page_obj})
+    return render(request, "transactions.html", {"page_obj": page_obj})
 
 
 @login_required
@@ -212,7 +284,7 @@ def add_transaction(request):
                 "0.00"
             ):
                 messages.error(request, "Quantity and price must be positive.")
-                return redirect("add_transaction")
+                return redirect("add-transaction")
 
             transaction.stock_symbol = transaction.stock_symbol.upper()
             transaction.save()
@@ -232,7 +304,7 @@ def edit_transaction(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, "Transaction updated successfully.")
-            return redirect("search_transactions")
+            return redirect("transactions-list")
     else:
         form = StockTransactionForm(instance=transaction)
 
