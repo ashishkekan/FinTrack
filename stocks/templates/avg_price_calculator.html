@@ -61,9 +61,14 @@
         <button type="button" id="addRow" class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-400 hover:text-indigo-600 hover:border-indigo-300 transition-colors flex items-center justify-center">
             <i class="fas fa-plus mr-2"></i> Add Another Transaction
         </button>
-        <button type="submit" class="w-full bg-indigo-600 text-white px-4 py-3 rounded-lg hover:bg-indigo-700 transition-colors">
-            <i class="fas fa-calculator mr-2"></i> Calculate Average Price
-        </button>
+        <div class="flex justify-between items-center mt-6">
+            <a href="{% url 'home' %}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-3 rounded-lg transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i> Back
+            </a>
+            <button type="submit" class="bg-indigo-600 text-white px-4 py-3 rounded-lg hover:bg-indigo-700 transition-colors">
+                <i class="fas fa-calculator mr-2"></i> Calculate
+            </button>
+        </div>
     </form>
     {% if result %}
     <div class="mt-6 p-4 bg-indigo-50 rounded-lg">

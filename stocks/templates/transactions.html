@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load custom_filter %}
 {% block title %}Portfolio{% endblock %}
 {% block header_title %}Your Portfolio{% endblock %}
 {% block header_subtitle %}View your stock holdings and average prices.{% endblock %}
@@ -29,7 +29,7 @@
                 <tr class="border-t hover:bg-gray-50 transition-colors">
                     <td class="p-3">{{ item.symbol }}</td>
                     <td class="p-3">{{ item.quantity }}</td>
-                    <td class="p-3">{{ item.avg_price|floatformat:2 }}</td>
+                    <td class="p-3">{{ item.avg_price|format_indian_currency }}</td>
                     <td class="space-x-2">
                         <a href="{% url 'edit_transaction' item.latest_pk %}"
                            class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm">Edit</a>
