@@ -14,10 +14,10 @@ class SidebarMiddleware:
                 "icon": "fa-home",
                 "font_semibold": True,
             },
-            {"name": "Portfolio", "url_name": "portfolio", "icon": "fa-chart-line"},
+            {"name": "Portfolio", "url_name": "transactions-list", "icon": "fa-chart-line"},
             {
                 "name": "Transactions",
-                "url_name": "add_transaction",
+                "url_name": "transactions-list",
                 "icon": "fa-exchange-alt",
             },
             {

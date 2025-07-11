@@ -9,7 +9,10 @@
     {% if page_obj %}
     <div class="flex justify-between items-center mb-6">
         <h3 class="font-bold text-lg">Stock Holdings</h3>
-        <a href="{% url 'add_transaction' %}" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">Add Transaction</a>
+        <a href="{% url 'add-transaction' %}" 
+           class="bg-indigo-600 hover:bg-indigo-700 text-white w-10 h-10 flex items-center justify-center rounded-lg transition">
+            <i class="fas fa-plus"></i>
+        </a>
     </div>
     <div class="overflow-x-auto">
         <table class="w-full">
@@ -58,7 +61,7 @@
 
     {% else %}
     <p class="text-gray-600">No stocks in your portfolio.</p>
-    <a href="{% url 'add_transaction' %}" class="mt-4 inline-block bg-indigo-600 text-white px-4 py-3 rounded-lg hover:bg-indigo-700">Add Transaction</a>
+    <a href="{% url 'add-transaction' %}" class="mt-4 inline-block bg-indigo-600 text-white px-4 py-3 rounded-lg hover:bg-indigo-700">Add Transaction</a>
     {% endif %}
 </div>
 {% endblock %}

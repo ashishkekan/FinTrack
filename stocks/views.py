@@ -130,7 +130,7 @@ def home(request):
 
 
 @login_required
-def portfolio(request):
+def transactions_list(request):
     transactions = StockTransaction.objects.filter(user=request.user)
     portfolio = defaultdict(
         lambda: {
@@ -186,7 +186,7 @@ def portfolio(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    return render(request, "portfolio.html", {"page_obj": page_obj})
+    return render(request, "transactions.html", {"page_obj": page_obj})
 
 
 @login_required
@@ -212,7 +212,7 @@ def add_transaction(request):
                 "0.00"
             ):
                 messages.error(request, "Quantity and price must be positive.")
-                return redirect("add_transaction")
+                return redirect("add-transaction")
 
             transaction.stock_symbol = transaction.stock_symbol.upper()
             transaction.save()
