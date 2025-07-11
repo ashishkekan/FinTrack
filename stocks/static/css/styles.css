@@ -32,8 +32,33 @@ button:hover {
     transform: translateY(-2px);
 }
 
+.footer {
+    flex-shrink: 0;
+    background: #ffffff; /* Match card background */
+    color: #374151; /* Tailwind text-gray-700 */
+    padding: 1.5rem 0;
+    text-align: center;
+    font-size: 14px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Tailwind shadow-md */
+}
+
+.footer a {
+    transition: color 0.3s;
+}
+
+.footer a:hover {
+    color: #4f46e5; /* Tailwind indigo-600 */
+}
+
 @media (max-width: 768px) {
     .navbar .active {
         display: block;
+    }
+    .footer {
+        padding: 1rem 0;
+    }
+    .footer .grid {
+        grid-template-columns: 1fr;
+        text-align: center;
     }
 }
