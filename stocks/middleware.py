@@ -21,7 +21,7 @@ class SidebarMiddleware:
                 "icon": "fa-exchange-alt",
             },
             {
-                "name": "Avg Price Calculator",
+                "name": "Calculator",
                 "url_name": "avg_price_calculator",
                 "icon": "fa-calculator",
             },
@@ -57,7 +57,7 @@ class SidebarMiddleware:
         request.sidebar_nav_links = nav_links
         request.sidebar_user = (
             {
-                "username": request.user.username,
+                "name": request.user.get_full_name() or request.user.username,  # Use get_full_name() or fallback to username
                 "is_staff": request.user.is_staff,
             }
             if request.user.is_authenticated

@@ -34,10 +34,8 @@
                 {% endfor %}
                 {% if request.sidebar_user %}
                 <div class="flex items-center">
-                    <img src="https://randomuser.me/api/portraits/women/44.jpg" class="w-8 h-8 rounded-full mr-2" alt="User">
                     <div class="text-sm">
-                        <p class="font-semibold text-gray-800">{{ request.sidebar_user.username }}</p>
-                        <p class="text-xs text-gray-500">{{ request.sidebar_user.is_staff|yesno:"Admin,User" }}</p>
+                        <p class="font-semibold text-gray-800">{{ request.sidebar_user.name }}</p>
                     </div>
                 </div>
                 {% endif %}
@@ -56,10 +54,8 @@
                 {% endfor %}
                 {% if request.sidebar_user %}
                 <li class="flex items-center p-3">
-                    <img src="https://randomuser.me/api/portraits/women/44.jpg" class="w-10 h-10 rounded-full mr-3" alt="User">
                     <div>
-                        <p class="font-semibold text-gray-800">{{ request.sidebar_user.username }}</p>
-                        <p class="text-xs text-gray-500">{{ request.sidebar_user.is_staff|yesno:"Admin,User" }}</p>
+                        <p class="font-semibold text-gray-800">{{ request.sidebar_user.name }}</p>
                     </div>
                 </li>
                 {% endif %}
