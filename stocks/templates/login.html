@@ -5,7 +5,7 @@
 {% block header_subtitle %}Sign in to manage your stock portfolio.{% endblock %}
 
 {% block content %}
-<div class="max-w-xl mx-auto bg-white rounded-xl shadow-md card-hover transition-all duration-300 p-6">
+<div class="max-w-xl mx-auto bg-white rounded-xl shadow-md card-hover transition-all duration-300 px-8 py-12">
     <form method="post" class="space-y-4">
         {% csrf_token %}
         {{ form.as_p }}
