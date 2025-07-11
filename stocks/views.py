@@ -262,7 +262,6 @@ def user_login(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                messages.success(request, "Logged in successfully.")
                 return redirect("home")
             else:
                 messages.error(request, "Invalid username or password.")
@@ -272,7 +271,6 @@ def user_login(request):
 
 def user_logout(request):
     logout(request)
-    messages.success(request, "Logged out successfully.")
     return redirect("login")
 
 
