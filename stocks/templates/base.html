@@ -25,7 +25,7 @@
             </div>
             <div class="hidden md:flex items-center space-x-4">
                 {% for link in request.sidebar_nav_links %}
-                <a href="{{ link.url }}" class="flex items-center px-4 py-2 rounded-lg {% if link.is_active %}bg-indigo-50 text-indigo-600{% else %}text-gray-600 hover:bg-indigo-50 hover:text-indigo-600{% endif %} {% if link.font_semibold %}font-semibold{% endif %} transition-colors">
+                <a href="{{ link.url }}" class="flex items-center px-4 py-2 rounded-lg {% if link.is_active %}bg-indigo-50 text-indigo-600{% else %}text-blue-600 hover:bg-indigo-50 hover:text-indigo-600{% endif %} {% if link.font_semibold %}font-semibold{% endif %} transition-colors">
                     <i class="fas {{ link.icon }} mr-2"></i>
                     {{ link.name }}
                 </a>
@@ -74,34 +74,11 @@
         </div>
     </div>
 
-    <footer class="footer bg-white shadow-md p-6">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <h3 class="text-lg font-bold text-gray-800 mb-3">FinTrack</h3>
-                    <p class="text-gray-600 text-sm">Your trusted platform for tracking and managing stock investments with ease.</p>
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold text-gray-800 mb-3">Quick Links</h3>
-                    <ul class="space-y-2">
-                        <li><a href="{% url 'home' %}" class="text-indigo-600 hover:text-indigo-800 text-sm">Home</a></li>
-                        <li><a href="{% url 'portfolio' %}" class="text-indigo-600 hover:text-indigo-800 text-sm">Portfolio</a></li>
-                        <li><a href="{% url 'add-transaction' %}" class="text-indigo-600 hover:text-indigo-800 text-sm">Add Transaction</a></li>
-                        <li><a href="#" class="text-indigo-600 hover:text-indigo-800 text-sm">Contact Us</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold text-gray-800 mb-3">Connect</h3>
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-indigo-600 hover:text-indigo-800"><i class="fab fa-twitter text-lg"></i></a>
-                        <a href="#" class="text-indigo-600 hover:text-indigo-800"><i class="fab fa-linkedin text-lg"></i></a>
-                        <a href="#" class="text-indigo-600 hover:text-indigo-800"><i class="fab fa-github text-lg"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="mt-6 border-t border-gray-200 pt-4 text-center">
-                <p class="text-gray-600 text-sm">Copyright © {% now "Y" %} FinTrack. All rights reserved.</p>
-            </div>
+    <footer class="bg-white shadow-md p-6">
+        <div class="border-t border-gray-200 pt-4 text-center">
+            <p class="text-sm text-gray-600">
+                &copy; {% now "Y" %} FinTrack. All rights reserved.
+            </p>
         </div>
     </footer>
 
